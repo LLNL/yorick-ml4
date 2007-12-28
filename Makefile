@@ -70,6 +70,9 @@ MAKE_TEMPLATE = protect-against-1.5
 
 ml4.o: ml4.h
 
+clean::
+	-rm -rf binaries
+
 # -------------------------------------------------------- end of Makefile
 
 
@@ -97,7 +100,7 @@ package:
 	mv tmp.info binaries/$(PKG_NAME)/$(PKG_NAME).info
 	cd binaries; tar zcvf $(PKG_NAME)-$(PKG_VERSION)-$(PKG_ARCH).tgz $(PKG_NAME)
 
-distbin:
+distbin: package
 	if test -f "binaries/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_ARCH).tgz" ; then \
 	  ncftpput -f $(HOME)/.ncftp/maumae www/yorick/$(PKG_DEST_URL)/$(PKG_ARCH)/tarballs/ \
 	  binaries/$(PKG_NAME)-$(PKG_VERSION)-$(PKG_ARCH).tgz; fi
@@ -105,12 +108,13 @@ distbin:
 	  ncftpput -f $(HOME)/.ncftp/maumae www/yorick/$(PKG_DEST_URL)/$(PKG_ARCH)/info/ \
 	  binaries/$(PKG_NAME)/$(PKG_NAME).info; fi
 
-distsrc:
-	make clean; rm -rf binaries
+distsrc: clean
 	cd ..; tar --exclude binaries --exclude .svn -zcvf \
-	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz $(PKG_NAME);\
+	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz yorick-$(PKG_NAME)-$(PKG_VERSION);\
 	ncftpput -f $(HOME)/.ncftp/maumae www/yorick/$(PKG_DEST_URL)/src/ \
 	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz
+	ncftpput -f $(HOME)/.ncftp/maumae www/yorick/contrib/ \
+	   ../$(PKG_NAME)-$(PKG_VERSION)-src.tgz
 
 
 # -------------------------------------------------------- end of Makefile

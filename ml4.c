@@ -2,7 +2,7 @@
  *
  * C function for matlab 4 IO
  *
- * $Id: ml4.c,v 1.1 2007-12-28 17:45:09 frigaut Exp $
+ * $Id: ml4.c,v 1.2 2007-12-28 18:02:48 frigaut Exp $
  * Original writen by Stephen Browne, tOSC.
  * Adapted and yorickized by Francois Rigaut, 2005-2007
  * last revision/addition: 2007jun14
@@ -68,7 +68,7 @@ extern Array *GrowArray(Array *array, long extra);
 
 //static FILE **fd[MAXFILES]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 static FILE *fd[MAXFILES];
-static char matfile[MAXFILES][256]={0};
+static char matfile[MAXFILES][256]={{0}};
 static char fullname[256]={0};
 static char tempvarname[256] = {0};
 static char message[100];
@@ -265,8 +265,8 @@ FILE *openmat(char *fullname)
 void Y_ml4read(int nArgs)
 
 {
-  char *filename;
-  char *varname;
+  char *filename="";
+  char *varname="";
   int leave_open = 0;
   
   if (nArgs==2) {
@@ -286,7 +286,7 @@ void Y_ml4read(int nArgs)
   FILE *fs;
   int fileptr;
   int endian = 'L';
-  int size,i;
+  int size=0,i;
 
   fs = openmat(filename);
   if (fs == NULL) YError(p_strncat("Can't open file ",filename,0));
@@ -523,7 +523,7 @@ void Y_ml4search(int nArgs)
 void Y_ml4scan(int nArgs)
 {
   char *filename=YGetString(sp-nArgs+1);
-  int maxvar;
+  int maxvar=0;
   int returnString=(1-yarg_subroutine());
   if (nArgs==1) {
     maxvar=10000;
@@ -694,14 +694,14 @@ void matscan(FILE *fs, int maxVarsToSearch, int returnString)
   long info[5];
   long i;
   long fileptr,tfileptr,tfp;
-  long nbyt,nelem,skip;
+  long nbyt=0,nelem,skip;
   long type;
   long mrows,mcols;
   long imagf;
   long namelen;
   long varNumber = 0;
   char varname[80];
-  char *stype;
+  char *stype="";
   int varnum=0;
   Array *a= PushDataBlock(NewArray(&stringStruct, (Dimension *)0));
   long extra=1;
@@ -811,7 +811,7 @@ int matchvarname(char *var, char *match)
   if (*match == '*') return 1;  // guaranteed match if first char of match string is '*'
 
   n1 = strlen(var);
-  if (p=strchr(match,'*')) {
+  if ((p=strchr(match,'*'))) {
     n2 = p-match;
     if (n2 > n1) return 0;       // guaranteed mismatch if lengths of unambiguous portions of strings are not equal
   } else {
