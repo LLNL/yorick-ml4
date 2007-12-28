@@ -2,7 +2,7 @@
  *
  * C function for matlab 4 IO
  *
- * $Id: ml4.c,v 1.1 2007-12-28 17:45:09 frigaut Exp $
+ * $Id: ml4.c,v 1.1.1.1 2007-12-28 17:45:09 frigaut Exp $
  * Original writen by Stephen Browne, tOSC.
  * Adapted and yorickized by Francois Rigaut, 2005-2007
  * last revision/addition: 2007jun14
