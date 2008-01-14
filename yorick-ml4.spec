@@ -1,6 +1,6 @@
 %define name yorick-ml4
 %define version 0.5.1
-%define release gemini2007dec31
+%define release gemini2008jan09
 
 Summary: yorick library for matlab files I/O
 Name: %{name}
@@ -44,12 +44,14 @@ mkdir -p $RPM_BUILD_ROOT/usr/lib/yorick/i0
 mkdir -p $RPM_BUILD_ROOT/usr/lib/yorick/i
 mkdir -p $RPM_BUILD_ROOT/usr/lib/yorick/i-start
 mkdir -p $RPM_BUILD_ROOT/usr/share/doc/yorick-ml4
+mkdir -p $RPM_BUILD_ROOT/usr/lib/yorick/packages/installed
 
 install -m 755 ml4.so $RPM_BUILD_ROOT/usr/lib/yorick/lib
 install -m 644 ml4.i $RPM_BUILD_ROOT/usr/lib/yorick/i0
 install -m 644 *_check.i $RPM_BUILD_ROOT/usr/lib/yorick/i
 install -m 644 *_start.i $RPM_BUILD_ROOT/usr/lib/yorick/i-start
 install -m 644 LICENSE $RPM_BUILD_ROOT/usr/share/doc/yorick-ml4
+install -m 644 ml4.info $RPM_BUILD_ROOT/usr/lib/yorick/packages/installed
 
 
 %clean
@@ -62,8 +64,12 @@ rm -rf $RPM_BUILD_ROOT
 /usr/lib/yorick/i/*.i
 /usr/lib/yorick/i-start/*_start.i
 /usr/share/doc/yorick-ml4/LICENSE
+/usr/lib/yorick/packages/installed/*
 
 %changelog
+* Tue Jan 09 2008 <frigaut@users.sourceforge.net>
+- included the info file for compat with pkg_mngr
+
 * Mon Dec 31 2007 <frigaut@users.sourceforge.net>
 - new distro directory structure
 - updated cvs
