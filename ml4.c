@@ -2,7 +2,7 @@
  *
  * C function for matlab 4 IO
  *
- * $Id: ml4.c,v 1.2 2007-12-28 18:02:48 frigaut Exp $
+ * $Id: ml4.c,v 1.3 2008-11-20 14:34:46 frigaut Exp $
  * Original writen by Stephen Browne, tOSC.
  * Adapted and yorickized by Francois Rigaut, 2005-2007
  * last revision/addition: 2007jun14
@@ -22,7 +22,14 @@
  * General Public License, write to the Free Software Foundation, Inc., 675
  * Mass Ave, Cambridge, MA 02139, USA).
  *
- * $log$
+ * $Log: ml4.c,v $
+ * Revision 1.3  2008-11-20 14:34:46  frigaut
+ * - Included and uploaded changes from Thibaut Paumard making ml4 64 bits safe.
+ * - Beware: In 64 bits, longs (8bytes) are saved as int (4bytes)
+ *
+ * - a few more minor text edits
+ * - added ML4_VERSION variable
+ *
  *
 */
 
@@ -53,6 +60,7 @@ extern Array *GrowArray(Array *array, long extra);
 
 #define SWAP_SHORT(Var)  Var = *(short*)         swap((void*)&Var, sizeof(short))
 #define SWAP_USHORT(Var) Var = *(unsigned short*)swap((void*)&Var, sizeof(short))
+#define SWAP_INT(Var)    Var = *(int*)           swap((void*)&Var, sizeof(int))
 #define SWAP_LONG(Var)   Var = *(long*)          swap((void*)&Var, sizeof(long))
 #define SWAP_ULONG(Var)  Var = *(unsigned long*) swap((void*)&Var, sizeof(long))
 #define SWAP_RGB(Var)    Var = *(int*)           swap((void*)&Var, 3)
@@ -92,8 +100,8 @@ int matout(char *fullname,char *varname,void *data,int nrows,int ncols,char vart
 {
   int  size;
   long nelem;
-  long type,namelen;
-  long mrows,mcols,imagf;
+  int  type,namelen;
+  int  mrows,mcols,imagf;
   int i;
   FILE *fs;
   
@@ -117,8 +125,8 @@ int matout(char *fullname,char *varname,void *data,int nrows,int ncols,char vart
   case 'l':    /* 4-byte int, row-wise */
     type=20;  
     size=4;
-    long *varl=data;
-    if (endianess=='B') { for (i=0;i<nelem;i++) SWAP_LONG(varl[i]); };
+    int *varl=data;
+    if (endianess=='B') { for (i=0;i<nelem;i++) SWAP_INT(varl[i]); };
     break;
   case 's':    /* 2-byte signed shorts */
     type=30;
@@ -171,34 +179,34 @@ int matout(char *fullname,char *varname,void *data,int nrows,int ncols,char vart
   }
   
   imagf=0;
-  if (endianess=='B') SWAP_LONG(type);
-  if (fwrite(&type,sizeof(long),1,fs) != 1) {
+  if (endianess=='B') SWAP_INT(type);
+  if (fwrite(&type,sizeof(int),1,fs) != 1) {
     writerr();
     return (-1);
   }
-  if (endianess=='B') SWAP_LONG(mrows);
-  if (fwrite(&mrows,sizeof(long),1,fs) != 1) {
+  if (endianess=='B') SWAP_INT(mrows);
+  if (fwrite(&mrows,sizeof(int),1,fs) != 1) {
     writerr();
     return (-1);
   }
-  if (endianess=='B') SWAP_LONG(mcols);
-  if (fwrite(&mcols,sizeof(long),1,fs) != 1) {
+  if (endianess=='B') SWAP_INT(mcols);
+  if (fwrite(&mcols,sizeof(int),1,fs) != 1) {
     writerr();
     return (-1);
   }
-  if (endianess=='B') SWAP_LONG(imagf);
-  if (fwrite(&imagf,sizeof(long),1,fs) != 1) {
+  if (endianess=='B') SWAP_INT(imagf);
+  if (fwrite(&imagf,sizeof(int),1,fs) != 1) {
     writerr();
     return (-1);
   }
     
   namelen=strlen(varname)+1;
-  if (endianess=='B') SWAP_LONG(namelen);
-  if (fwrite(&namelen,sizeof(long),1,fs) != 1) {
+  if (endianess=='B') SWAP_INT(namelen);
+  if (fwrite(&namelen,sizeof(int),1,fs) != 1) {
     writerr();
     return (-1);
   }
-  if (endianess=='B') SWAP_LONG(namelen);
+  if (endianess=='B') SWAP_INT(namelen);
   if (fwrite(varname,(unsigned int)namelen,1,fs) != 1) {  
     writerr();
     return (-1);
@@ -280,9 +288,9 @@ void Y_ml4read(int nArgs)
   }
 
   unsigned long bytes_read;
-  long type,namelen;
+  int type,namelen;
   unsigned long nElements,nBytesToRead;
-  long mrows,mcols,imagf;
+  int mrows,mcols,imagf;
   FILE *fs;
   int fileptr;
   int endian = 'L';
@@ -296,29 +304,29 @@ void Y_ml4read(int nArgs)
   fileptr = ftell(fs);
   if (DEBUG) printf("@ position %d\n",fileptr);
   
-  bytes_read = fread(&type,sizeof(long),1,fs);
+  bytes_read = fread(&type,sizeof(int),1,fs);
   if (bytes_read==0) {
     matclose(filename);
     YError("Premature end of file");; // end of file
   }
-  fread(&mrows,sizeof(long),1,fs);
-  fread(&mcols,sizeof(long),1,fs);
-  fread(&imagf,sizeof(long),1,fs);
+  fread(&mrows,sizeof(int),1,fs);
+  fread(&mcols,sizeof(int),1,fs);
+  fread(&imagf,sizeof(int),1,fs);
     
-  fread(&namelen,sizeof(long),1,fs);
+  fread(&namelen,sizeof(int),1,fs);
 
   if (namelen & 0xffff0000) {
     if (DEBUG) printf("Big endian file\n");
     endian = 'B';
-    SWAP_LONG(type);
-    SWAP_LONG(mrows);
-    SWAP_LONG(mcols);
-    SWAP_LONG(imagf);
-    SWAP_LONG(namelen);
+    SWAP_INT(type);
+    SWAP_INT(mrows);
+    SWAP_INT(mcols);
+    SWAP_INT(imagf);
+    SWAP_INT(namelen);
   }
   type = type%1000;
 
-  if (DEBUG) printf("rows,cols,namelen= %ld %ld %ld\n",mrows,mcols,namelen);
+  if (DEBUG) printf("rows,cols,namelen= %d %d %d\n",mrows,mcols,namelen);
 
   if (namelen>255) {
     fseek(fs,fileptr,SEEK_SET);  // leave file ptr at begginning of this variable
@@ -367,10 +375,10 @@ void Y_ml4read(int nArgs)
   } else if ((type==120) || (type==20)) {
     // 4-byte int
     size = 4;
-    Array *a= PushDataBlock(NewArray(&longStruct, tmpDims));
-    long *data = a->value.l;
+    Array *a= PushDataBlock(NewArray(&intStruct, tmpDims));
+    int *data = a->value.l;
     bytes_read = fread((void *)data,size,nElements,fs);
-    if (endian=='B') { for (i=0;i<nElements;i++) SWAP_LONG(data[i]); }
+    if (endian=='B') { for (i=0;i<nElements;i++) SWAP_INT(data[i]); }
 
   } else if (type==30) {
     // 2-byte signed (30) shorts
@@ -411,7 +419,7 @@ void Y_ml4read(int nArgs)
 
   } else {
     matclose(filename);
-    sprintf(message,"Unknown type %ld",type);
+    sprintf(message,"Unknown type %d",type);
     YError(message);
   }
 
@@ -599,14 +607,14 @@ int textread(char *file, char *variable, float *values, int nvals)
 // The search can be limited to the next "maxVarsToSearch" by setting maxVarsToSearch>0
 int matfind(FILE *fs, char *var, int maxVarsToSearch)
 {
-  long info[5];
+  int  info[5];
   long i;
   long fileptr,tfileptr,tfp;
   long nbyt,nelem,skip;
-  long type,rest,prec;
-  long mrows,mcols;
-  long imagf;
-  long namelen;
+  long rest,prec;
+  int type,mrows,mcols;
+  int imagf;
+  int namelen;
   long varNumber = 0;
   char varname[80];
   char string[200];
@@ -628,7 +636,7 @@ int matfind(FILE *fs, char *var, int maxVarsToSearch)
         // info[0] changed to info[4] 2006/3/15 as double type can be 0, hence
         // no way to know big from little endian info[0] for doubles.
         if (DEBUG) printf("swapping!\n");
-        for (i=0;i<5;i++) SWAP_LONG(info[i]);
+        for (i=0;i<5;i++) SWAP_INT(info[i]);
       }
 
       info[0] = info[0]%1000;
@@ -636,7 +644,7 @@ int matfind(FILE *fs, char *var, int maxVarsToSearch)
       tfp = ftell(fs);
 
       if (DEBUG) printf("at address %ld \n",tfp);
-      if (DEBUG) printf("info = %ld %ld %ld %ld %ld\n",info[0],info[1],info[2],info[3],info[4]);
+      if (DEBUG) printf("info = %d %d %d %d %d\n",info[0],info[1],info[2],info[3],info[4]);
 
       if ((namelen = info[4])<80L) {
         if (fread(varname,1,info[4],fs)==(int)info[4]) {
@@ -691,14 +699,14 @@ int matfind(FILE *fs, char *var, int maxVarsToSearch)
 
 void matscan(FILE *fs, int maxVarsToSearch, int returnString)
 {
-  long info[5];
+  int  info[5];
   long i;
   long fileptr,tfileptr,tfp;
   long nbyt=0,nelem,skip;
-  long type;
-  long mrows,mcols;
-  long imagf;
-  long namelen;
+  int  type;
+  int  mrows,mcols;
+  int  imagf;
+  int  namelen;
   long varNumber = 0;
   char varname[80];
   char *stype="";
@@ -719,7 +727,7 @@ void matscan(FILE *fs, int maxVarsToSearch, int returnString)
         // info[0] changed to info[4] 2006/3/15 as double type can be 0, hence
         // no way to know big from little endian info[0] for doubles.
         if (DEBUG) printf("swapping!\n");
-        for (i=0;i<5;i++) SWAP_LONG(info[i]);
+        for (i=0;i<5;i++) SWAP_INT(info[i]);
       }
 
       info[0] = info[0]%1000;
@@ -727,7 +735,7 @@ void matscan(FILE *fs, int maxVarsToSearch, int returnString)
       tfp = ftell(fs);
 
       if (DEBUG) printf("at address %ld \n",tfp);
-      if (DEBUG) printf("info = %ld %ld %ld %ld %ld\n",info[0],info[1],info[2],info[3],info[4]);
+      if (DEBUG) printf("info = %d %d %d %d %d\n",info[0],info[1],info[2],info[3],info[4]);
 
       type = info[0]%1000;
 
@@ -752,18 +760,18 @@ void matscan(FILE *fs, int maxVarsToSearch, int returnString)
             // 1-byte signed or unsigned chars (50) or text (51)
             stype=p_strcpy("char*1  "); nbyt=1; 
           } else {
-            sprintf(message,"Unknown data type %ld",type);
+            sprintf(message,"Unknown data type %d",type);
             YError(message);
           }
           
           if (returnString) {
             if (varnum!=0) a= PushDataBlock((void *)GrowArray(a, extra));
             a->value.q[varnum] = p_malloc(81);
-            sprintf(a->value.q[varnum],"%30s  %s array [%ld,%ld]",varname,   \
+            sprintf(a->value.q[varnum],"%30s  %s array [%d,%d]",varname,   \
                     stype,info[1],info[2]);
             varnum++;
           } else {
-            printf("%30s  %s array [%ld,%ld]\n",varname,stype,info[1],info[2]);
+            printf("%30s  %s array [%d,%d]\n",varname,stype,info[1],info[2]);
           }
 
           mrows=info[1];

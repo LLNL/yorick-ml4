@@ -1,9 +1,9 @@
 # these values filled in by    yorick -batch make.i
-Y_MAKEDIR=/usr/lib/yorick
-Y_EXE=/usr/lib/yorick/bin/yorick
+Y_MAKEDIR=/home/frigaut/yorick-2.1.05x
+Y_EXE=/home/frigaut/yorick-2.1.05x/bin/yorick
 Y_EXE_PKGS=
-Y_EXE_HOME=/usr/lib/yorick
-Y_EXE_SITE=/usr/lib/yorick
+Y_EXE_HOME=/home/frigaut/yorick-2.1.05x
+Y_EXE_SITE=/home/frigaut/yorick-2.1.05x
 
 # ----------------------------------------------------- optimization flags
 
@@ -109,7 +109,7 @@ distbin: package
 	  binaries/$(PKG_NAME)/$(PKG_NAME).info; fi
 
 distsrc: clean
-	cd ..; tar --exclude binaries --exclude .svn -zcvf \
+	cd ..; tar --exclude binaries --exclude .svn --exclude CVS --exclude *.spec -zcvf \
 	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz yorick-$(PKG_NAME)-$(PKG_VERSION);\
 	ncftpput -f $(HOME)/.ncftp/maumae www/yorick/$(PKG_DEST_URL)/src/ \
 	   $(PKG_NAME)-$(PKG_VERSION)-src.tgz

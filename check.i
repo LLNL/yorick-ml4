@@ -23,7 +23,7 @@ for (i=1;i<=50;i++) tv,ml4read("test2.mat","x",1);
 animate,0;
 ml4close,"test2.mat";
 
-write,format="%s\n","same file in Little endian (note that matlabio only reads LE)";
+write,format="%s\n","same file in Little endian (note that ml4 only reads LE)";
 ml4write,"test3.mat","Check file for the yorick ml4 plugin","FileType","w",endian='L';
 ml4write,"test3.mat","little","endian","a",endian='L';
 ml4write,"test3.mat",dist(12),"d12","a",endian='L';

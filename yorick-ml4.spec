@@ -1,6 +1,6 @@
 %define name yorick-ml4
-%define version 0.5.1
-%define release gemini2008jan09
+%define version 0.6.0
+%define release gemini2008nov20
 
 Summary: yorick library for matlab files I/O
 Name: %{name}

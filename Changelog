@@ -1,0 +1,8 @@
+This is the changelog of the sourceforge cvs ml4 package. Not the debian
+changelog.
+
+-- Francois Rigaut <frigaut@users.sf.net>  Thu Nov 20 12:28:44 ARST 2008
+ml4-0.6.0: 
+Included and uploaded changes from Thibaut Paumard making ml4 64 bits safe.
+Beware: In 64 bits, longs (8bytes) are saved as int (4bytes)
+

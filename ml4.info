@@ -1,6 +1,6 @@
 Package: ml4
 Kind: plugin
-Version: 0.5.1
+Version: 0.6.0
 Revision: 1
 Description: matlab4 format IO
 License: GPL
