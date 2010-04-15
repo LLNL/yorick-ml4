@@ -3,7 +3,7 @@
  * Yorick wrappers for ml4.c
  * Matlab 4 IO
  *
- * $Id: ml4.i,v 1.2 2008-11-20 14:34:46 frigaut Exp $
+ * $Id: ml4.i,v 1.3 2010-04-15 02:49:42 frigaut Exp $
  * Francois Rigaut, 2005-2007
  * last revision/addition: 2007jun14
  *
@@ -23,7 +23,12 @@
  * Mass Ave, Cambridge, MA 02139, USA).
  *
  * $Log: ml4.i,v $
- * Revision 1.2  2008-11-20 14:34:46  frigaut
+ * Revision 1.3  2010-04-15 02:49:42  frigaut
+ *
+ *
+ * repo update to 0.6.0
+ *
+ * Revision 1.2  2008/11/20 14:34:46  frigaut
  * - Included and uploaded changes from Thibaut Paumard making ml4 64 bits safe.
  * - Beware: In 64 bits, longs (8bytes) are saved as int (4bytes)
  *
@@ -124,7 +129,10 @@ func ml4write(file,data,varname,mode,endian=)
     ncols=int(dims(3));
   }
   
-  if      (structof(data)==long)   { type='l'; }
+  tmp = data; // otherwise data may be swapped in place in endian='L'
+
+  // next line: fix from Thibaut Paumard for Debian.
+  if      (structof(data)==long)   { type='l'; tmp=int(tmp); }
   else if (structof(data)==int)    { type='l'; }
   else if (structof(data)==float)  { type='r'; }
   else if (structof(data)==double) { type='d'; }
@@ -132,8 +140,6 @@ func ml4write(file,data,varname,mode,endian=)
   else if (structof(data)==char)   { type='b'; }
   else error,"Unsupported type";
 
-  tmp = data; // otherwise data may be swapped in place in endian='L'
-  
   status = matout(file,varname,&tmp,nrows,ncols,type,mode,endian);
   if (status) error,"write failed";
 }
